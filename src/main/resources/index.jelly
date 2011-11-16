@@ -1,0 +1,9 @@
+<!--
+  This view is used to render the plugin list page.
+
+  Since we don't really have anything dynamic here, let's just use static HTML. 
+-->
+<div>
+  Hudson plugin for Play! framework.<br />
+  It enables hudson to run play command and to generate test-result view per build looks like calimoucho.
+</div>
