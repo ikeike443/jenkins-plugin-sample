@@ -2,7 +2,7 @@
 
 <l:layout>
 <st:include it="${it.owner}" page="sidepanel.jelly" />
-    <l:main-panel>
+<l:main-panel>
 <style type="text/css">
 #main-panel {
 
@@ -119,7 +119,7 @@ li, li.passed, li.failed {
 }
 </style>
 
-<div class="result" id="title"><h1 class="${it.statusatall}">${it.appName}</h1></div>
+<div class="result" id="title"><h1 class="${it.statusAtAll}">${it.appName}</h1></div>
 <a class="revLink" href="" /> 
 <ul>
     <j:if test="${it.applicationlogExists}" >

@@ -46,7 +46,7 @@ public class PlayTestResultActionTest extends HudsonTestCase {
         assertTrue("application.log don't exists!", action.getApplicationlogExists());
         assertFalse("application.log is empty!", action.getApplicationlog().isEmpty());
         assertFalse("test result is empty!", action.getTestResults().isEmpty());
-        assertEquals("status is not passed!", "passed", action.getStatusatall());
+        assertEquals("status is not passed!", "passed", action.getStatusAtAll());
         assertEquals("app name is not playscala!", "playscala", action.getAppName());
 
     }
@@ -78,7 +78,7 @@ public class PlayTestResultActionTest extends HudsonTestCase {
         assertTrue("application.log is not exists!", action.getApplicationlogExists());
         assertFalse("application.log is empty!", action.getApplicationlog().isEmpty());
         assertFalse("test result is empty!", action.getTestResults().isEmpty());
-        assertEquals("status is not failed!", "failed", action.getStatusatall());
+        assertEquals("status is not failed!", "failed", action.getStatusAtAll());
         assertEquals("app name is not playscala!", "playscala", action.getAppName());
 
     }

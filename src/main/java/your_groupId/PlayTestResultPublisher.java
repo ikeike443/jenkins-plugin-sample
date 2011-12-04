@@ -9,6 +9,7 @@ import hudson.model.BuildListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
+import hudson.tasks.Recorder;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.File;
@@ -19,7 +20,7 @@ import java.util.Properties;
 /**
  * @author ikeike443
  */
-public class PlayTestResultPublisher extends Publisher {
+public class PlayTestResultPublisher extends Recorder {
     @DataBoundConstructor
     public PlayTestResultPublisher() {
     }
@@ -27,30 +28,32 @@ public class PlayTestResultPublisher extends Publisher {
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
+        InputStream inputStream = null;
         try {
 
-            FilePath[] files = build.getProject().getWorkspace().list("test-result/*");
+            FilePath[] files = build.getWorkspace().list("test-result/*");
             FilePath root = new FilePath(build.getRootDir());
             for (FilePath filePath : files) {
                 filePath.copyTo(new FilePath(root, "test-result/" + filePath.getName()));
             }
             Properties conf = new Properties();
-            InputStream inputStream = new FileInputStream(new File(
+            inputStream = new FileInputStream(new File(
                     build.getWorkspace() + "/conf/application.conf"));
             conf.load(inputStream);
 
             PlayTestResultAction act = new PlayTestResultAction(build);
             act.setPassed(new FilePath(root, "test-result/result.passed").exists());
-            act.setAppName(conf.getProperty("application.name"));//TODO set default name
+            act.setAppName(conf.getProperty("application.name"));
             build.addAction(act);
 
-            inputStream.close();//TODO move down to correct space
 
             return true;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(listener.getLogger());
             return false;
+        } finally {
+            try {inputStream.close();} catch (Exception ignore) {}
         }
 
     }
@@ -69,7 +72,7 @@ public class PlayTestResultPublisher extends Publisher {
      * The class is marked as public so that it can be accessed from views.
      * <p/>
      * <p/>
-     * See <tt>views/hudson/plugins/hello_world/HelloWorldBuilder/*.jelly</tt>
+     * See <tt>views/hudson/plugins/hello_world/your_groupId/*.jelly</tt>
      * for the actual HTML fragment for the configuration screen.
      */
     @Extension // this marker indicates Hudson that this is an implementation of an extension point.

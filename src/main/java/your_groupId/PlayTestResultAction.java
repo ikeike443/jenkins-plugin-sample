@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  */
 public class PlayTestResultAction implements Action {
     private AbstractBuild<?, ?> owner;
-    private String statusatall;
+    private String statusAtAll;
     private String appName;
 
     public AbstractBuild<?, ?> getOwner() {
@@ -39,7 +39,7 @@ public class PlayTestResultAction implements Action {
       * @see hudson.model.Action#getIconFileName()
       */
     public String getIconFileName() {
-        return "/plugin/play-autotest-plugin/favicon.png";
+        return "/plugin/your_sample/favicon.png";
     }
 
     /* (non-Javadoc)
@@ -92,7 +92,6 @@ public class PlayTestResultAction implements Action {
 
 
     public void doDynamic(StaplerRequest req, StaplerResponse res) throws IOException {
-        System.out.println(req.getRestOfPath());
         FileInputStream fileInputStream = new FileInputStream(owner.getRootDir() + req.getRestOfPath());
         ServletOutputStream out = res.getOutputStream();
         int i;
@@ -104,12 +103,12 @@ public class PlayTestResultAction implements Action {
     }
 
     public void setPassed(boolean b) {
-        this.statusatall = b ? "passed" : "failed";
+        this.statusAtAll = b ? "passed" : "failed";
 
     }
 
-    public String getStatusatall() {
-        return this.statusatall;
+    public String getStatusAtAll() {
+        return this.statusAtAll;
     }
 
     public void setAppName(String appName) {

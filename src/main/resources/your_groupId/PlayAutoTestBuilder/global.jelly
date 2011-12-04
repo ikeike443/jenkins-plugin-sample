@@ -2,7 +2,7 @@
   <f:section title="Play!">
     <f:entry title="Play path"
       description="path to play! framework script"
-      help="/plugin/play-autotest-plugin/help-globalConfig.html">
+      help="${rootURL}/plugin/your_sample/help-globalConfig.html">
       <f:textbox name="play_path" value="${descriptor.path()}" />
       
     </f:entry>

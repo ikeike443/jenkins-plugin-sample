@@ -3,7 +3,6 @@ package your_groupId;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.Proc;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
@@ -17,7 +16,6 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import javax.servlet.ServletException;
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -25,60 +23,63 @@ import java.io.IOException;
  */
 public class PlayAutoTestBuilder extends Builder {
 
-    private final String play_cmd;
+    private final String playCmd;
 
     @DataBoundConstructor
-    public PlayAutoTestBuilder(String play_cmd) {
-        this.play_cmd = play_cmd;
+    public PlayAutoTestBuilder(String playCmd) {
+        this.playCmd = playCmd;
     }
 
     /**
      * We'll use this from the <tt>config.jelly</tt>.
      */
-    public String getPlay_cmd() {
-        return play_cmd;
+    public String getPlayCmd() {
+        return playCmd;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
         //clean up
         try {
-            FilePath[] files = build.getProject().getWorkspace().list("test-result/*");
+            FilePath[] files = build.getWorkspace().list("test-result/*");
 
             for (FilePath filePath : files) {
                 filePath.delete();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(listener.getLogger());
             return false;
         }
 
 
-        String playpath = null;
+        String playPath = null;
         if (getDescriptor().path() != null) {
-            playpath = getDescriptor().path();
+            playPath = getDescriptor().path();
         } else {
             listener.getLogger().println("play path is null");
             return false;
         }
 
-        listener.getLogger().println("play path is " + playpath);
-        if (!"auto-test".equals(play_cmd)) {
-            listener.getLogger().println("play command '" + play_cmd + "' you set is not supported at this version. 'auto-test' is always available.");
-            System.out.println("play command '" + play_cmd + "' you set is not supported at this version. 'auto-test' is always available.");
+        listener.getLogger().println("play path is " + playPath);
+        if (!"auto-test".equals(playCmd)) {
+            listener.getLogger().println("play command '" + playCmd + "' you set is not supported at this version. 'auto-test' is always available.");
+            //System.out.println("play command '" + play_cmd + "' you set is not supported at this version. 'auto-test' is always available.");
             return false;
         }
         try {
 
-            String cmd = playpath + " " + play_cmd + " " + build.getWorkspace().toString();
-            listener.getLogger().println(cmd);
-            Proc proc = launcher.launch(cmd, new String[0], listener.getLogger(), build.getWorkspace());
-            int exitcode = proc.join();
+            //String cmd = playpath + " " + playCmd + " " + build.getWorkspace().getRemote();
+            //listener.getLogger().println(cmd);
+            int exitCode =
+                    launcher.launch()
+                            .stdout(listener.getLogger())
+                            .stderr(listener.getLogger())
+                            .cmds(playPath, playCmd, build.getWorkspace().getRemote())
+                            .join();
 
-            if (exitcode == 0) {
+            if (exitCode == 0) {
                 //check test-result
-                if (new File(build.getWorkspace().toString() + "/test-result/result.passed").exists()) {
+                if (new FilePath(build.getWorkspace(), "test-result/result.passed").exists()) {
                     return true;
                 } else {
                     build.setResult(Result.UNSTABLE);
@@ -89,7 +90,7 @@ public class PlayAutoTestBuilder extends Builder {
                 return false;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(listener.getLogger());
             return false;
         }
 
@@ -105,7 +106,7 @@ public class PlayAutoTestBuilder extends Builder {
      * The class is marked as public so that it can be accessed from views.
      * <p/>
      * <p/>
-     * See <tt>views/hudson/plugins/hello_world/HelloWorldBuilder/*.jelly</tt>
+     * See <tt>views/hudson/plugins/hello_world/your_groupId/*.jelly</tt>
      * for the actual HTML fragment for the configuration screen.
      */
     @Extension // this marker indicates Hudson that this is an implementation of an extension point.
@@ -129,6 +130,8 @@ public class PlayAutoTestBuilder extends Builder {
          *
          * @param value This parameter receives the value that the user has typed.
          * @return Indicates the outcome of the validation. This is sent to the browser.
+         * @throws java.io.IOException
+         * @throws javax.servlet.ServletException
          */
         public FormValidation doCheckName(@QueryParameter String value) throws IOException, ServletException {
             if (value.length() == 0)
@@ -156,10 +159,6 @@ public class PlayAutoTestBuilder extends Builder {
             return super.configure(req, formData);
         }
 
-
-        /**
-         * This method returns true if the global configuration says we should speak French.
-         */
         public String path() {
             return path;
         }
